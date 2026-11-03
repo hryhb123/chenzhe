@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="surface_background">#FFF7F7FA</color>
+    <color name="card_background">#FFFFFFFF</color>
+    <color name="text_primary">#FF1B1B1F</color>
+    <color name="text_secondary">#FF6B6B75</color>
+    <color name="brand_primary">#FF3F51B5</color>
+    <color name="ic_launcher_background">#FF3F51B5</color>
+</resources>

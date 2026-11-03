@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">影视追踪</string>
+    <string name="home_subtitle">Android 原生开发 · 课设项目骨架</string>
+    <string name="home_status">工程骨架初始化完成 ✓\n\n已接入：AndroidX / Material / ConstraintLayout\nJetpack：ViewModel · LiveData · Room · WorkManager\n网络：Retrofit · OkHttp · Gson\n图片：Glide\n\n业务功能将在后续步骤接入。</string>
+</resources>
