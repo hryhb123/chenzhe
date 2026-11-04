@@ -6,4 +6,10 @@
     <color name="text_secondary">#FF6B6B75</color>
     <color name="brand_primary">#FF3F51B5</color>
     <color name="ic_launcher_background">#FF3F51B5</color>
+
+    <!-- 列表 / 详情页新增 -->
+    <color name="poster_placeholder">#FFE4E6EE</color>
+    <color name="error_text">#FFB3261E</color>
+    <color name="mock_notice_background">#FFFFF3DC</color>
+    <color name="mock_notice_text">#FF8A5A00</color>
 </resources>

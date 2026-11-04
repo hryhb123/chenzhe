@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">影视追踪</string>
-    <string name="home_subtitle">Android 原生开发 · 课设项目骨架</string>
-    <string name="home_status">工程骨架初始化完成 ✓\n\n已接入：AndroidX / Material / ConstraintLayout\nJetpack：ViewModel · LiveData · Room · WorkManager\n网络：Retrofit · OkHttp · Gson\n图片：Glide\n\n业务功能将在后续步骤接入。</string>
+
+    <!-- 示例数据提示 -->
+    <string name="mock_notice">当前为示例数据（未配置 TMDb Key），配置后自动切换真实接口</string>
+
+    <!-- 列表页状态 -->
+    <string name="state_loading">加载中…</string>
+    <string name="state_empty_title">暂无影视数据</string>
+    <string name="state_empty_desc">下拉或点击刷新再试一次</string>
+    <string name="state_error_title">加载失败</string>
+    <string name="action_retry">重试</string>
+
+    <!-- 列表项 -->
+    <string name="movie_year_unknown">年份未知</string>
+
+    <!-- 详情页 -->
+    <string name="detail_title">影视详情</string>
+    <string name="detail_runtime">%1$d 分钟</string>
+    <string name="detail_no_overview">暂无简介</string>
+    <string name="detail_empty">没有找到这部影视的详情</string>
+
+    <!-- 菜单（仅调试包） -->
+    <string name="menu_refresh">刷新</string>
+    <string name="menu_mock_success">示例数据：正常</string>
+    <string name="menu_mock_empty">示例数据：空列表</string>
+    <string name="menu_mock_error">示例数据：网络错误</string>
+
+    <!-- 提示 -->
+    <string name="toast_mock_success">已切换为：正常示例数据</string>
+    <string name="toast_mock_empty">已切换为：空列表</string>
+    <string name="toast_mock_error">已切换为：网络错误</string>
 </resources>
