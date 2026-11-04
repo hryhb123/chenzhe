@@ -2,6 +2,18 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+// 本机配置（local.properties 已被 .gitignore 排除）：TMDb Key 与可选 API 域名
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { localProperties.load(it) }
+}
+def tmdbApiKey = localProperties.getProperty('tmdb.api.key', '').trim()
+def tmdbBaseUrl = localProperties.getProperty('tmdb.base.url', 'https://api.themoviedb.org/3/').trim()
+if (!tmdbBaseUrl.endsWith('/')) {
+    tmdbBaseUrl = tmdbBaseUrl + '/'
+}
+
 android {
     namespace 'com.chenzhe.movietracker'
     compileSdk = 37
@@ -12,6 +24,10 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"
+
+        // TMDb 配置经 BuildConfig 注入：Key 本身只存在于本机 local.properties，不会入库
+        buildConfigField "String", "TMDB_API_KEY", "\"${tmdbApiKey}\""
+        buildConfigField "String", "TMDB_BASE_URL", "\"${tmdbBaseUrl}\""
 
         // Room 导出 schema 需要该参数（后续建库时生效）
         javaCompileOptions {
@@ -32,6 +48,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
+    buildFeatures {
+        // AGP 9 默认关闭 BuildConfig，从这一步开始需要通过它读取 TMDb 配置
+        buildConfig = true
+    }
 }
 
 dependencies {
@@ -40,6 +61,7 @@ dependencies {
     implementation libs.androidx.appcompat
     implementation libs.material
     implementation libs.androidx.constraintlayout
+    implementation libs.androidx.recyclerview
 
     // Jetpack
     implementation libs.androidx.lifecycle.runtime

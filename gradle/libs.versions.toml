@@ -6,6 +6,7 @@ core = "1.19.1"
 appcompat = "1.8.0"
 material = "1.14.0"
 constraintlayout = "2.2.2"
+recyclerview = "1.4.0"
 lifecycle = "2.11.0"
 room = "2.8.5"
 work = "2.12.0"
@@ -22,6 +23,7 @@ androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
 # --- Jetpack：ViewModel / LiveData / Room ---
 androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycle" }
