@@ -21,6 +21,7 @@ import com.chenzhe.movietracker.ui.common.UiState;
 import com.chenzhe.movietracker.ui.detail.MovieDetailActivity;
 import com.chenzhe.movietracker.ui.list.MovieAdapter;
 import com.chenzhe.movietracker.ui.list.MovieListViewModel;
+import com.chenzhe.movietracker.ui.watchlist.WatchlistActivity;
 import com.chenzhe.movietracker.util.InsetsHelper;
 
 import java.util.List;
@@ -107,9 +108,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnMo
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         // 示例数据场景切换只在调试包里出现，正式包不暴露
-        if (BuildConfig.DEBUG) {
-            getMenuInflater().inflate(R.menu.menu_main, menu);
+        if (!BuildConfig.DEBUG) {
+            menu.findItem(R.id.action_mock_success).setVisible(false);
+            menu.findItem(R.id.action_mock_empty).setVisible(false);
+            menu.findItem(R.id.action_mock_error).setVisible(false);
         }
         return true;
     }
@@ -117,6 +121,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnMo
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
+        if (itemId == R.id.action_watchlist) {
+            startActivity(WatchlistActivity.createIntent(this));
+            return true;
+        }
         if (itemId == R.id.action_mock_success) {
             switchMockScenario(MockScenario.Mode.SUCCESS, R.string.toast_mock_success);
             return true;

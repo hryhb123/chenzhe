@@ -22,3 +22,6 @@ Thumbs.db
 *.aab
 *.ap_
 captures/
+
+# Room 导出的 schema（本课设不追溯历史版本，不入库）
+app/schemas/

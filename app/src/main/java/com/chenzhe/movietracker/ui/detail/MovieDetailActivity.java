@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -14,11 +15,15 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.chenzhe.movietracker.R;
+import com.chenzhe.movietracker.data.local.entity.RatingEntity;
 import com.chenzhe.movietracker.data.model.Genre;
 import com.chenzhe.movietracker.data.model.MovieDetail;
 import com.chenzhe.movietracker.ui.common.UiState;
+import com.chenzhe.movietracker.ui.watchlist.WatchlistActivity;
 import com.chenzhe.movietracker.util.InsetsHelper;
 import com.chenzhe.movietracker.util.PosterUrls;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.slider.Slider;
 
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +60,16 @@ public class MovieDetailActivity extends AppCompatActivity {
     private ImageView backdropView;
     private ImageView placeholderView;
 
+    private MaterialButton watchlistButton;
+    private TextView myScoreView;
+    private Slider scoreSlider;
+    private MaterialButton saveRatingButton;
+    private MaterialButton clearRatingButton;
+
+    /** 最近一次成功渲染的详情，评分/看单操作需要它的完整信息才能写入数据库。 */
+    private MovieDetail currentDetail;
+    private boolean inWatchlist;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +97,40 @@ public class MovieDetailActivity extends AppCompatActivity {
         backdropView = findViewById(R.id.image_detail_backdrop);
         placeholderView = findViewById(R.id.image_detail_placeholder);
 
+        watchlistButton = findViewById(R.id.button_watchlist);
+        myScoreView = findViewById(R.id.text_my_score);
+        scoreSlider = findViewById(R.id.slider_score);
+        saveRatingButton = findViewById(R.id.button_save_rating);
+        clearRatingButton = findViewById(R.id.button_clear_rating);
+
+        watchlistButton.setOnClickListener(v -> {
+            if (currentDetail == null) {
+                return;
+            }
+            viewModel.toggleWatchlist(currentDetail, inWatchlist);
+            Toast.makeText(this,
+                    inWatchlist ? R.string.toast_removed_from_watchlist
+                            : R.string.toast_added_to_watchlist,
+                    Toast.LENGTH_SHORT).show();
+        });
+
+        saveRatingButton.setOnClickListener(v -> {
+            if (currentDetail == null) {
+                return;
+            }
+            int score = Math.round(scoreSlider.getValue());
+            viewModel.rate(currentDetail, score);
+            Toast.makeText(this, R.string.toast_rating_saved, Toast.LENGTH_SHORT).show();
+        });
+
+        clearRatingButton.setOnClickListener(v -> {
+            if (currentDetail == null) {
+                return;
+            }
+            viewModel.clearRating(currentDetail);
+            Toast.makeText(this, R.string.toast_rating_cleared, Toast.LENGTH_SHORT).show();
+        });
+
         findViewById(R.id.button_detail_retry).setOnClickListener(v -> {
             if (movieId > 0) {
                 viewModel.loadMovieDetail(movieId);
@@ -94,9 +143,58 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
 
         viewModel = new ViewModelProvider(this).get(MovieDetailViewModel.class);
+        viewModel.bindLocalState(movieId);
         viewModel.getState().observe(this, this::render);
+
+        // 看单状态：数据库一变化（本页或看单页操作）就自动回调，按钮文字随之切换
+        viewModel.getInWatchlist().observe(this, value -> {
+            inWatchlist = value != null && value;
+            updateWatchlistButton();
+        });
+
+        // 我的评分：评分变化后同步滑块与文字
+        viewModel.getMyScore().observe(this, this::renderMyScore);
+
+        // 写库失败（极少见，如磁盘写满）时提示，不静默失败
+        viewModel.getLastError().observe(this, message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                viewModel.clearError();
+            }
+        });
+
         if (viewModel.getState().getValue() == null) {
             viewModel.loadMovieDetail(movieId);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 从看单页返回时看单可能已被移出，按钮状态由 LiveData 自动纠正
+        updateWatchlistButton();
+    }
+
+    private void updateWatchlistButton() {
+        if (watchlistButton == null) {
+            return;
+        }
+        watchlistButton.setText(inWatchlist
+                ? R.string.detail_remove_from_watchlist
+                : R.string.detail_add_to_watchlist);
+    }
+
+    private void renderMyScore(Integer score) {
+        if (score == null) {
+            myScoreView.setText(R.string.detail_my_score_none);
+            clearRatingButton.setEnabled(false);
+            return;
+        }
+        myScoreView.setText(getString(R.string.detail_my_score_value, score));
+        clearRatingButton.setEnabled(true);
+        // 用户正在拖动时不要覆盖其位置
+        if (!scoreSlider.isFocused()) {
+            scoreSlider.setValue(score);
         }
     }
 
@@ -129,6 +227,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     }
 
     private void bind(MovieDetail detail) {
+        currentDetail = detail;
         setTitle(detail.getTitle());
         titleView.setText(detail.getTitle());
 

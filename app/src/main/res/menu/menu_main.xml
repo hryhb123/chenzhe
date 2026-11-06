@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- 「我的看单」对正式包同样可见，放在右上直接可点 -->
+    <item
+        android:id="@+id/action_watchlist"
+        android:title="@string/menu_watchlist"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/action_refresh"
         android:title="@string/menu_refresh"

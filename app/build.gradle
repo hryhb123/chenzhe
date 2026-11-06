@@ -71,6 +71,12 @@ dependencies {
     annotationProcessor libs.androidx.room.compiler
     implementation libs.androidx.work.runtime
 
+    // Room 的 LiveData 支持（@Dao 可以直接返回 LiveData，数据变化自动推送）
+    implementation libs.androidx.lifecycle.livedata.core
+
+    // 导出 Room schema，版本迁移时可与旧 schema 比对
+    annotationProcessor libs.androidx.room.testing
+
     // 网络
     implementation platform(libs.okhttp.bom)
     implementation libs.retrofit

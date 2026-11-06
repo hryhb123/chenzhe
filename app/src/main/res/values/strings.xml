@@ -23,6 +23,7 @@
 
     <!-- 菜单（仅调试包） -->
     <string name="menu_refresh">刷新</string>
+    <string name="menu_watchlist">我的看单</string>
     <string name="menu_mock_success">示例数据：正常</string>
     <string name="menu_mock_empty">示例数据：空列表</string>
     <string name="menu_mock_error">示例数据：网络错误</string>
@@ -31,4 +32,26 @@
     <string name="toast_mock_success">已切换为：正常示例数据</string>
     <string name="toast_mock_empty">已切换为：空列表</string>
     <string name="toast_mock_error">已切换为：网络错误</string>
+
+    <!-- 看单 / 评分 -->
+    <string name="detail_actions_title">我的操作</string>
+    <string name="detail_add_to_watchlist">加入看单</string>
+    <string name="detail_remove_from_watchlist">移出看单</string>
+    <string name="detail_my_score_none">我的评分：尚未评分</string>
+    <string name="detail_my_score_value">我的评分：%1$d 分</string>
+    <string name="detail_save_rating">保存评分</string>
+    <string name="detail_clear_rating">清除评分</string>
+    <string name="toast_added_to_watchlist">已加入看单</string>
+    <string name="toast_removed_from_watchlist">已移出看单</string>
+    <string name="toast_rating_saved">评分已保存</string>
+    <string name="toast_rating_cleared">评分已清除</string>
+
+    <!-- 我的看单页 -->
+    <string name="watchlist_title">我的看单</string>
+    <string name="watchlist_empty_title">还没有加入任何影视</string>
+    <string name="watchlist_empty_desc">去首页挑一部喜欢的，在详情页点「加入看单」</string>
+    <string name="watchlist_error_title">看单加载失败</string>
+    <string name="watchlist_remove">移出</string>
+    <string name="watchlist_my_score">我的评分 %1$d 分</string>
+    <string name="watchlist_not_rated">未评分</string>
 </resources>

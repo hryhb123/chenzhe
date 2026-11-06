@@ -13,7 +13,8 @@
 | --- | --- | --- |
 | 1 | 工程骨架 + 依赖锁定 + 首页占位（可编译运行） | ✅ |
 | 2 | 接入 TMDb：网络层 + 影视列表页 + 详情页（MVVM） | ✅ |
-| 3 | 收藏 / 搜索 / 桌面小组件 | ⏳ 待接入 |
+| 3 | Room 数据库 + 我的看单 + 评分 | ✅ |
+| 4 | 搜索 / 桌面小组件 / 通知提醒 | ⏳ 待接入 |
 
 ## TMDb API Key 申请与配置
 
@@ -48,16 +49,37 @@ tmdb.base.url=https://api.themoviedb.org/3/
 ```
 UI 层（Activity + Adapter，只渲染状态）
    │  observe LiveData<UiState<T>>
-ViewModel 层（MovieListViewModel / MovieDetailViewModel）
+ViewModel 层（MovieListViewModel / MovieDetailViewModel / WatchlistViewModel）
    │  取消请求、postValue 回主线程
-Repository 层（MovieRepository，唯一数据出口）
-   ├── 有 Key → Retrofit + OkHttp → TMDb 真实接口
-   └── 无 Key → 内置示例数据（MockMovies，可切换空 / 错误场景）
+Repository 层（MovieRepository 网络 / WatchlistRepository 本地）
+   ├── 电影详情 → Retrofit + OkHttp → TMDb 真实接口（无 Key 时用内置示例数据）
+   └── 看单/评分 → Room（LiveData 自动推送，数据库一变 UI 就刷新）
 ```
 
 - 页面状态统一为 `UiState`：加载中 / 成功 / 空 / 错误，任何分支都有对应视图，不白屏、不崩溃。
 - 网络请求由 OkHttp 线程池异步执行，结果通过 `LiveData.postValue` 回到主线程刷新 UI。
 - ViewModel 持有请求句柄，`onCleared()` 时取消未完成请求，避免回调泄漏；Activity 重建后复用 ViewModel 中的状态，不会重复请求。
+
+## 数据持久化（Room，步骤 3）
+
+三张表，主键统一用 TMDb 电影 id：
+
+| 表 | 实体 | 作用 |
+| --- | --- | --- |
+| `movies` | `MovieEntity` | 影视基础信息缓存（标题、海报路径、上映日期、评分、简介） |
+| `watchlist` | `WatchlistEntity` | 「想看」看单：一行一部已加入的影视，记录加入时间 |
+| `ratings` | `RatingEntity` | 我的评分：1~10 分，重复打分覆盖旧值 |
+
+**线程与生命周期**
+
+- 写操作（加入/移出看单、打分）走 `WatchlistRepository` 的单线程 `ExecutorService`，保证按顺序落库、不占主线程。
+- 读操作由 DAO 直接返回 `LiveData<List<...>>`，Room 在主线程推送结果，UI 只负责渲染。
+- 页面通过 `ViewModel + LiveData` 观察数据，任何一端增删改都会自动刷新另一端（例如在看单页移出后，详情页按钮同步变回「加入看单」）。
+
+**踩坑记录：不要用 `@Insert(OnConflictStrategy.REPLACE)` 写有外键的父表**
+
+SQLite 的 `REPLACE` 实现是「先 DELETE 再 INSERT」，会触发子表 `ON DELETE CASCADE`，
+导致保存评分时把同一条影视的看单记录一起删掉。改用 Room 的 `@Upsert`（内部是 UPDATE + INSERT）解决。
 
 ## 目录结构
 
@@ -70,13 +92,15 @@ MovieTracker/
 │   │   │   ├── model/                           # Movie / MovieDetail / Genre / MovieListResponse
 │   │   │   ├── remote/                          # TMDbApi、TMDbClient、ApiConfig
 │   │   │   ├── mock/                            # 示例数据与场景开关
-│   │   │   └── repository/MovieRepository.java  # 数据仓库
+│   │   │   ├── local/                           # Room：entity / dao / AppDatabase / MovieMapper
+│   │   │   └── repository/                      # MovieRepository（网络）、WatchlistRepository（本地）
 │   │   ├── ui/
 │   │   │   ├── common/UiState.java              # 统一页面状态
 │   │   │   ├── list/                            # 列表 ViewModel + Adapter
-│   │   │   └── detail/                          # 详情 ViewModel + Activity
-│   │   └── util/PosterUrls.java                 # 海报地址拼装
-│   ├── res/layout/                              # activity_main、item_movie、activity_movie_detail
+│   │   │   ├── detail/                          # 详情 ViewModel + Activity（含看单 / 评分操作）
+│   │   │   └── watchlist/                       # 我的看单 ViewModel + Adapter + Activity
+│   │   └── util/                                # PosterUrls 海报地址、InsetsHelper 系统栏适配
+│   ├── res/layout/                              # activity_main、item_movie、activity_movie_detail、activity_watchlist、item_watchlist
 │   └── AndroidManifest.xml
 ├── gradle/libs.versions.toml      # 版本目录：所有依赖版本在此锁定
 ├── build.gradle                   # 顶层构建脚本
@@ -87,7 +111,7 @@ MovieTracker/
 ## 依赖清单（版本见 `gradle/libs.versions.toml`）
 
 - **UI**：AndroidX Core、AppCompat、Material Components、ConstraintLayout、RecyclerView
-- **Jetpack**：ViewModel、LiveData、Room（runtime + 注解处理器）、WorkManager
+- **Jetpack**：ViewModel、LiveData（含 livedata-core）、Room（runtime + 注解处理器）、WorkManager
 - **网络**：Retrofit、OkHttp（BOM 统一版本）、Gson converter、OkHttp 日志拦截器
 - **图片**：Glide（含注解处理器）
 - **通知**：通过 AndroidX Core 的 `NotificationCompat` 使用

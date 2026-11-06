@@ -12,4 +12,6 @@
     <color name="error_text">#FFB3261E</color>
     <color name="mock_notice_background">#FFFFF3DC</color>
     <color name="mock_notice_text">#FF8A5A00</color>
+    <color name="divider">#FFE6E6EC</color>
+    <color name="score_accent">#FFF5A623</color>
 </resources>

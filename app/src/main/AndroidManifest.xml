@@ -27,6 +27,12 @@
             android:exported="false"
             android:label="@string/detail_title"
             android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.watchlist.WatchlistActivity"
+            android:exported="false"
+            android:label="@string/watchlist_title"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>
